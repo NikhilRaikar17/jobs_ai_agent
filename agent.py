@@ -70,7 +70,7 @@ class Agent:
         return response_dict
 
     def query_llm(self, prompt):
-        os.environ['GROQ_API_KEY'] = "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"
+        os.environ['GROQ_API_KEY'] = "####"
         api_key = os.environ['GROQ_API_KEY']
 
         headers = {
