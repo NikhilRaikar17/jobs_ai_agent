@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
-os.environ['GROQ_API_KEY'] = "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"
+os.environ['GROQ_API_KEY'] = "####"
 
 class Job(BaseModel):
     site: str
