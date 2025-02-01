@@ -3,7 +3,7 @@ import json
 import ast
 import os
 import re
-from tools import Tool
+from others.tools import Tool
 
 
 class Agent:

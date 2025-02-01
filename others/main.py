@@ -1,5 +1,5 @@
-from agent import Agent
-from tools import TimeTool, WeatherTool, JobScrapperTool
+from others.agent import Agent
+from others.tools import TimeTool, WeatherTool, JobScrapperTool
 
 
 def main():
