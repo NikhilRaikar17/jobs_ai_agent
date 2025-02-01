@@ -15,7 +15,7 @@ def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
         new_job = Job(**job)
 
         try:
-            session.add(new_job) 
+            session.add(new_job)
             session.commit()
         except IntegrityError:
             session.rollback()
@@ -27,16 +27,16 @@ def scrape_jobs_data(query: str = "Software Tester", location: str = "germany") 
     print("🔍 Scraping jobs from LinkedIn & Indeed...")
     jobs = scrape_jobs(search_term=query, location=location,
                        site_name=["linkedin", "indeed"],
-                       results_wanted=20,
+                       results_wanted=70,
                        hours_old=72,
                        country_indeed='germany',
                        linkedin_fetch_description=True)
 
     jobs["priority"] = None
-    jobs["AI_Match"] = None
+    jobs["match_score"] = None
 
     selected_columns: List[str] = ["id", "site", "job_url", "title", "company",
-                                   "location", "date_posted", "description", "priority", "AI_Match"]
+                                   "location", "date_posted", "description", "priority", "match_score"]
     jobs = jobs[selected_columns]
     new_jobs: List[Dict[str, Any]] = jobs.to_dict(orient="records")
 

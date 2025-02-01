@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Date, exc
+from sqlalchemy import create_engine, Column, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -31,7 +31,8 @@ class Job(Base):
                               default=datetime.now().strftime("%Y-%m-%d"))
     description: str = Column(String)
     priority: str = Column(String, nullable=True)
-    AI_Match: str = Column(String, nullable=True)
+    match_score: str = Column(String, nullable=True)
+    extracted_csv: bool = Column(Boolean, default=False)
 
 
 # Initialize the database
