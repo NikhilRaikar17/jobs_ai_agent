@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String
-from db_rank import Base
+from main import Base
+from datetime import datetime
 
 
 class Job(Base):
