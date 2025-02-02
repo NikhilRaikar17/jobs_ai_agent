@@ -2,6 +2,7 @@ from job_scrapper import scrape_jobs_data
 from rank import filter_jobs_with_ai
 
 if __name__ == "__main__":
+
     resume_text = """
     As an ISTQB® Certified Senior Quality Assurance Engineer with over 6+ years of experience, I excel in full
     lifecycle testing, including white box, black box, and regression testing. I am proficient in Cypres
@@ -11,6 +12,9 @@ if __name__ == "__main__":
     customer expectations. 
     """
     jobs = scrape_jobs_data()
-
-    print("🚀 Running AI Job Search Agent with Groq...")
-    filtered_jobs = filter_jobs_with_ai(jobs, resume_text)
+    
+    if jobs:
+        print("🚀 Running AI Job Search Agent with Groq...")
+        filtered_jobs = filter_jobs_with_ai(jobs, resume_text)
+    else:
+        print("🚀 No News jobs found, all LLMS are paused")
