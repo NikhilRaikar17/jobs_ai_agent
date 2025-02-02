@@ -42,4 +42,13 @@ Base.metadata.create_all(engine)
 
 def get_existing_job_ids() -> Set[str]:
     """ Retrieve all existing job IDs to filter duplicates. """
-    return {job.id for job in session.query(Job.id).all()}  # Fetch all stored job IDs
+    return {job.id for job in session.query(Job.id).all()}
+
+
+def update_job_scores_in_db(job_id, score, match_score):
+    """ Update the match_score and priority fields in the database. """
+
+    job = session.query(Job).filter_by(id=job_id).first()
+    job.priority = score
+    job.match_score = match_score
+    session.commit()

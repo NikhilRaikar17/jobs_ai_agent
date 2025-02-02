@@ -1,5 +1,5 @@
 from job_scrapper import scrape_jobs_data
-from others.rank import filter_jobs_with_ai
+from rank import filter_jobs_with_ai
 
 if __name__ == "__main__":
     resume_text = """
@@ -7,4 +7,6 @@ if __name__ == "__main__":
     Looking for remote-friendly or high-priority job roles.
     """
     jobs = scrape_jobs_data()
+
+    print("🚀 Running AI Job Search Agent with Groq...")
     filtered_jobs = filter_jobs_with_ai(jobs, resume_text)
