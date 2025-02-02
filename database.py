@@ -29,7 +29,7 @@ class Job(Base):
     location: str = Column(String)
     date_posted: str = Column(String, nullable=True,
                               default=datetime.now().strftime("%Y-%m-%d"))
-    description: str = Column(String)
+    description: str = Column(String, default="")
     priority: str = Column(String, nullable=True)
     match_score: str = Column(String, nullable=True)
     extracted_csv: bool = Column(Boolean, default=False)

@@ -1,6 +1,7 @@
 import json
 import agentql as aql
 from playwright.sync_api import sync_playwright
+from job_scrapper import save_jobs_to_db
 
 DUMMY_EMAIL = "nikhilraikarjobs@gmail.com"
 DUMMY_PASSWORD = "Nikhil!995"
@@ -32,43 +33,47 @@ def scrape_stepstone_jobs(keyword, location="Germany", max_results=10):
         query = """
         {
             jobs[] {
+                job_id
                 job_title
                 company_name
                 job_location
                 job_url
+                description
+                date_posted
             }
         }
         """
 
         result = page.query_data(query)
-
         jobs_data = []
-        for job in result.get('jobs', [])[:max_results]:
-            jobs_data.append({
-                "title": job.get("job_title", "").strip(),
-                "company": job.get("company_name", "").strip(),
-                "location": job.get("job_location", "").strip(),
-                "link": f"{job.get('job_url', '').strip()}"
-            })
+        new_jobs_data = create_jobs_list(jobs_data, result, max_results)
+
+        save_jobs_to_db(new_jobs_data)
 
         search_url_page2 = f"{STEPSTONE_URL}/jobs/{keyword}/in-{
             location}?radius=100&page=2&sort=2&action=sort_publish&ag=age_7"
         page.goto(search_url_page2)
         page.wait_for_timeout(5000)
-
         result_2 = page.query_data(query)
+        new_jobs_data_2 = create_jobs_list(jobs_data, result_2, max_results)
 
-        for job in result_2.get('jobs', [])[:max_results]:
-            jobs_data.append({
-                "title": job.get("job_title", "").strip(),
-                "company": job.get("company_name", "").strip(),
-                "location": job.get("job_location", "").strip(),
-                "link": f"{job.get('job_url', '').strip()}"
-            })
-
+        save_jobs_to_db(new_jobs_data_2)
         browser.close()
 
         print(json.dumps(jobs_data, indent=4, ensure_ascii=False))
 
 
-scrape_stepstone_jobs("qa-engineer", "Germany", max_results=30)
+def create_jobs_list(jobs_data, extracted_jobs, max_results):
+    for job in extracted_jobs.get('jobs', [])[:max_results]:
+        jobs_data.append({
+            "id": job.get("job_id", "").strip(),
+            "title": job.get("job_title", "").strip(),
+            "site": 'stepstone',
+            "company": job.get("company_name", "").strip(),
+            "location": job.get("job_location", "").strip(),
+            "job_url": f"{job.get('job_url', '').strip()}",
+        })
+    return jobs_data
+
+
+scrape_stepstone_jobs("qa-engineer", "Germany", max_results=10)
