@@ -12,7 +12,7 @@ import pandas as pd
 from datetime import datetime
 
 # Groq API Key (Store in environment variable for security)
-os.environ['GROQ_API_KEY'] = "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"
+os.environ['GROQ_API_KEY'] = "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"
 
 # Email Configuration (Use App Password for Gmail)
 SMTP_SERVER = "smtp.gmail.com"
@@ -86,7 +86,7 @@ def scrape_jobs_data(query="Software Tester", location="germany"):
     print("🔍 Scraping jobs from LinkedIn & Indeed...")
     jobs = scrape_jobs(search_term=query, location=location,
                        site_name=["linkedin", "indeed"],
-                       results_wanted=20,
+                       results_wanted=10,
                        hours_old=72,
                        country_indeed='germany',
                        linkedin_fetch_description=True)
@@ -156,9 +156,9 @@ def filter_jobs_with_ai(jobs, resume_text):
 
     jobs = pd.DataFrame(jobs)
     jobs["priority"] = scores
-    jobs["AI_Match"] = matches
+    jobs["match_score"] = matches
     selected_columns = ["id", "site", "job_url", "title", "company",
-                        "location", "date_posted", "description", "priority", "AI_Match"]
+                        "location", "date_posted", "description", "priority", "match_score"]
     jobs = jobs[selected_columns]
     jobs.to_csv("jobs.csv", quoting=csv.QUOTE_NONNUMERIC,
                 escapechar="\\", index=False)  # to_excel

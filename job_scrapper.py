@@ -27,7 +27,7 @@ def scrape_jobs_data(query: str = "Software Tester", location: str = "germany") 
     print("🔍 Scraping jobs from LinkedIn & Indeed...")
     jobs = scrape_jobs(search_term=query, location=location,
                        site_name=["linkedin", "indeed"],
-                       results_wanted=70,
+                       results_wanted=10,
                        hours_old=72,
                        country_indeed='germany',
                        linkedin_fetch_description=True)
