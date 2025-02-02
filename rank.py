@@ -4,7 +4,7 @@ import requests
 import re
 from database import update_job_scores_in_db
 
-os.environ['GROQ_API_KEY'] = "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"
+os.environ['GROQ_API_KEY'] = "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"
 
 
 def query_llm(prompt):
