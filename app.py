@@ -34,7 +34,7 @@ def fetch_jobs():
 def get_unique_values(column):
     """Get unique values from a column for dropdown filters."""
     query = text(f"SELECT DISTINCT {column} FROM jobs WHERE {
-                 column} IS NOT NULL ORDER BY {column} ASC")
+        column} IS NOT NULL ORDER BY {column} ASC")
     with engine.connect() as conn:
         result = conn.execute(query)
         values = [row[0] for row in result.fetchall()]
@@ -66,8 +66,10 @@ selected_location = st.sidebar.selectbox(
 
 # Date filter (min & max dates)
 if not df.empty:
-    min_date = df["date_posted"].min().date() if not df.empty else datetime.today().date()
-    max_date = df["date_posted"].max().date() if not df.empty else datetime.today().date()
+    min_date = df["date_posted"].min().date(
+    ) if not df.empty else datetime.today().date()
+    max_date = df["date_posted"].max().date(
+    ) if not df.empty else datetime.today().date()
     selected_date = st.sidebar.slider(
         "Filter by Date", min_date, max_date, (min_date, max_date))
 
@@ -110,6 +112,9 @@ if not filtered_df.empty:
 
     filtered_df["title"] = filtered_df.apply(
         lambda row: make_clickable(row["job_url"], row["title"]), axis=1)
+
+    if "description" in filtered_df.columns:
+        filtered_df = filtered_df.drop(columns=["description"])
 
     # Hide index and format table
     st.markdown(filtered_df.to_html(
