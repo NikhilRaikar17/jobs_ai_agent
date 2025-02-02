@@ -56,14 +56,14 @@ def filter_jobs_with_ai(jobs, resume_text):
 
     for job in jobs:
         prompt = f"""
-        Compare the following job description with the candidate's resume.
+        Compare the following job description with the candidate's profile summary.
         Rate relevance from 1 (bad) to 10 (excellent).
 
         **Job Title:** {job['title']}
         **Company:** {job['company']}
         **Description:** {job['description']}
 
-        **Candidate Resume:**
+        **Candidate profile summary:**
         {resume_text}
 
         Return in JSON format:
@@ -80,7 +80,7 @@ def filter_jobs_with_ai(jobs, resume_text):
         matches.append(decision["match"])
 
         update_job_scores_in_db(
-            job["id"], decision["score"], decision["score"])
+            job["id"], decision["score"], decision["match"])
 
         if decision["match"] == "Yes" and decision["score"] >= 6:
             job["priority"] = decision["score"]
