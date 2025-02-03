@@ -2,9 +2,10 @@ import json
 import agentql as aql
 from playwright.sync_api import sync_playwright
 from job_scrapper import save_jobs_to_db
+import os
 
-DUMMY_EMAIL = "nikhilraikarjobs@gmail.com"
-DUMMY_PASSWORD = "Nikhil!995"
+DUMMY_EMAIL = os.getenv("EMAIL")
+DUMMY_PASSWORD = os.getenv("PASSWORD")
 
 STEPSTONE_URL = "https://www.stepstone.de"
 
