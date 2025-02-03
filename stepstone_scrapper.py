@@ -46,8 +46,8 @@ def scrape_stepstone_jobs(keyword, location="Germany", max_results=10):
         """
 
         result = page.query_data(query)
-        jobs_data = []
-        new_jobs_data = create_jobs_list(jobs_data, result, max_results)
+        jobs_data_1 = []
+        new_jobs_data = create_jobs_list(jobs_data_1, result, max_results)
 
         save_jobs_to_db(new_jobs_data)
 
@@ -56,12 +56,16 @@ def scrape_stepstone_jobs(keyword, location="Germany", max_results=10):
         page.goto(search_url_page2)
         page.wait_for_timeout(5000)
         result_2 = page.query_data(query)
-        new_jobs_data_2 = create_jobs_list(jobs_data, result_2, max_results)
+        jobs_data_2 = []
+        new_jobs_data_2 = create_jobs_list(jobs_data_2, result_2, max_results)
 
         save_jobs_to_db(new_jobs_data_2)
         browser.close()
 
-        print(json.dumps(jobs_data, indent=4, ensure_ascii=False))
+        all_jobs = jobs_data_1 + jobs_data_2
+        print(json.dumps(all_jobs, indent=4, ensure_ascii=False))
+
+        return all_jobs
 
 
 def create_jobs_list(jobs_data, extracted_jobs, max_results):
