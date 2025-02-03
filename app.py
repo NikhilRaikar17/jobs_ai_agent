@@ -9,7 +9,7 @@ engine = create_engine(DB_FILE)
 
 # Fake user credentials (Replace with a database in production)
 USER_CREDENTIALS = {
-    "admin": "megha",
+    "admin": "password123",
     "megha": "megha"
 }
 
@@ -57,7 +57,7 @@ def login():
             st.session_state.authenticated = True
             st.session_state.username = username
             st.success(f"Welcome, {username}! 🎉")
-            st.rerun()
+            st.rerun()  # Refresh page after login
         else:
             st.error("Invalid username or password. Please try again.")
 
@@ -68,7 +68,7 @@ def logout():
     """Logs out the user by clearing session state."""
     st.session_state.authenticated = False
     st.session_state.username = None
-    st.rerun()
+    st.rerun()  # Refresh page after logout
 
 
 # **Initialize Streamlit session state for authentication**
@@ -103,7 +103,6 @@ df = fetch_jobs()
 # **Sidebar filters**
 st.sidebar.header("🔍 Filter Jobs")
 
-# Dropdown filters (using SQL queries)
 job_titles = get_unique_values("title")
 selected_title = st.sidebar.selectbox("Select Job Title", ["All"] + job_titles)
 
@@ -114,16 +113,13 @@ locations = get_unique_values("location")
 selected_location = st.sidebar.selectbox(
     "Select Location", ["All"] + locations)
 
-# Date filter (min & max dates)
 if not df.empty:
-    min_date = df["date_posted"].min().date(
-    ) if not df.empty else datetime.today().date()
-    max_date = df["date_posted"].max().date(
-    ) if not df.empty else datetime.today().date()
+    min_date = df["date_posted"].min().date()
+    max_date = df["date_posted"].max().date()
     selected_date = st.sidebar.slider(
         "Filter by Date", min_date, max_date, (min_date, max_date))
 
-# Apply filters using SQLAlchemy
+# **Apply filters using SQLAlchemy**
 filtered_query = "SELECT * FROM jobs WHERE 1=1"
 filters = {}
 
@@ -151,23 +147,55 @@ with engine.connect() as conn:
 columns = result.keys()
 filtered_df = pd.DataFrame(filtered_jobs, columns=columns)
 
+# **Pagination Settings**
+JOBS_PER_PAGE = 10  # Number of jobs per page
+
+if "current_page" not in st.session_state:
+    st.session_state.current_page = 1
+
+total_jobs = len(filtered_df)
+total_pages = (total_jobs // JOBS_PER_PAGE) + \
+    (1 if total_jobs % JOBS_PER_PAGE > 0 else 0)
+
+start_idx = (st.session_state.current_page - 1) * JOBS_PER_PAGE
+end_idx = start_idx + JOBS_PER_PAGE
+
 # **Display results**
-st.write(f"### Showing {len(filtered_df)} job listings")
+st.write(f"### Showing {total_jobs} job listings (Page {
+         st.session_state.current_page} of {total_pages})")
 
 if not filtered_df.empty:
+    # Apply pagination
+    paginated_df = filtered_df.iloc[start_idx:end_idx]
+
     # Make job titles clickable
     def make_clickable(job_url, title):
         return f'<a href="{job_url}" target="_blank">{title}</a>'
 
-    filtered_df["title"] = filtered_df.apply(
+    paginated_df["title"] = paginated_df.apply(
         lambda row: make_clickable(row["job_url"], row["title"]), axis=1)
 
-    if "description" in filtered_df.columns:
-        filtered_df = filtered_df.drop(columns=["description"])
+    if "description" in paginated_df.columns:
+        paginated_df = paginated_df.drop(columns=["description"])
 
     # Hide index and format table
-    st.markdown(filtered_df.to_html(
+    st.markdown(paginated_df.to_html(
         escape=False, index=False), unsafe_allow_html=True)
+
+    # **Pagination Controls**
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col1:
+        if st.session_state.current_page > 1:
+            if st.button("⬅️ Previous"):
+                st.session_state.current_page -= 1
+                st.rerun()
+
+    with col3:
+        if st.session_state.current_page < total_pages:
+            if st.button("Next ➡️"):
+                st.session_state.current_page += 1
+                st.rerun()
 else:
     st.warning("No job listings found for the selected filters.")
 
