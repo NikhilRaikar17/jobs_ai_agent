@@ -166,17 +166,20 @@ st.write(f"### Showing {total_jobs} job listings (Page {
 
 if not filtered_df.empty:
     # Apply pagination
-    paginated_df = filtered_df.iloc[start_idx:end_idx]
+    paginated_df = filtered_df.iloc[start_idx:end_idx].copy()
 
     # Make job titles clickable
     def make_clickable(job_url, title):
         return f'<a href="{job_url}" target="_blank">{title}</a>'
 
-    paginated_df["title"] = paginated_df.apply(
+    paginated_df.loc[:, "title"] = paginated_df.apply(
         lambda row: make_clickable(row["job_url"], row["title"]), axis=1)
 
     if "description" in paginated_df.columns:
         paginated_df = paginated_df.drop(columns=["description"])
+
+    if "extracted_csv" in paginated_df.columns:
+        paginated_df = paginated_df.drop(columns=["extracted_csv"])
 
     # Hide index and format table
     st.markdown(paginated_df.to_html(
