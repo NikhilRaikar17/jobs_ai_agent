@@ -7,7 +7,13 @@ import pandas as pd
 DB_FILE = "sqlite:///jobs.db"
 engine = create_engine(DB_FILE)
 
-# Function to execute raw SQL queries using SQLAlchemy
+# Fake user credentials (Replace with a database in production)
+USER_CREDENTIALS = {
+    "admin": "megha",
+    "megha": "megha"
+}
+
+# Function to fetch job listings
 
 
 def fetch_jobs():
@@ -17,40 +23,84 @@ def fetch_jobs():
         result = conn.execute(query)
         jobs = result.fetchall()
 
-    # Convert results to DataFrame
     columns = result.keys()
     df = pd.DataFrame(jobs, columns=columns)
 
-    # Ensure `date_posted` is converted to datetime format
     if "date_posted" in df.columns:
-        df["date_posted"] = pd.to_datetime(
-            df["date_posted"], errors="coerce")  # Convert to datetime
-        # Drop rows where date conversion failed
+        df["date_posted"] = pd.to_datetime(df["date_posted"], errors="coerce")
         df = df.dropna(subset=["date_posted"])
 
     return df
 
 
+# Function to get unique values for filters
 def get_unique_values(column):
     """Get unique values from a column for dropdown filters."""
     query = text(f"SELECT DISTINCT {column} FROM jobs WHERE {
-        column} IS NOT NULL ORDER BY {column} ASC")
+                 column} IS NOT NULL ORDER BY {column} ASC")
     with engine.connect() as conn:
         result = conn.execute(query)
         values = [row[0] for row in result.fetchall()]
     return values
 
 
-# Streamlit UI
+# **Login Page**
+def login():
+    """Simple login function to authenticate users."""
+    st.title("🔒 Login to Job Listings Dashboard")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if username in USER_CREDENTIALS and USER_CREDENTIALS[username] == password:
+            st.session_state.authenticated = True
+            st.session_state.username = username
+            st.success(f"Welcome, {username}! 🎉")
+            st.rerun()
+        else:
+            st.error("Invalid username or password. Please try again.")
+
+# **Logout Function**
+
+
+def logout():
+    """Logs out the user by clearing session state."""
+    st.session_state.authenticated = False
+    st.session_state.username = None
+    st.rerun()
+
+
+# **Initialize Streamlit session state for authentication**
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+# **If not authenticated, show login page**
+if not st.session_state.authenticated:
+    login()
+    st.stop()  # Stop execution until user logs in
+
+# **Main Dashboard (Only visible after login)**
 st.set_page_config(page_title="Job Listings Dashboard", layout="wide")
 
 st.title("📊 Job Listings Dashboard")
-st.markdown("### View and filter job postings scraped from LinkedIn & Indeed")
+st.markdown(f"### Welcome, **{st.session_state.username}**!")
 
-# Load jobs from the database
+# **Logout Button**
+if st.button("🚪 Logout"):
+    logout()
+
+# **Refresh Button**
+if "refresh" not in st.session_state:
+    st.session_state.refresh = False
+
+if st.button("🔄 Refresh Job Listings"):
+    st.session_state.refresh = not st.session_state.refresh
+
+# **Load jobs from the database**
 df = fetch_jobs()
 
-# Sidebar filters
+# **Sidebar filters**
 st.sidebar.header("🔍 Filter Jobs")
 
 # Dropdown filters (using SQL queries)
@@ -98,11 +148,10 @@ with engine.connect() as conn:
     result = conn.execute(text(filtered_query), filters)
     filtered_jobs = result.fetchall()
 
-# Convert results to DataFrame
 columns = result.keys()
 filtered_df = pd.DataFrame(filtered_jobs, columns=columns)
 
-# Display results
+# **Display results**
 st.write(f"### Showing {len(filtered_df)} job listings")
 
 if not filtered_df.empty:
