@@ -1,6 +1,5 @@
 import streamlit as st
 from sqlalchemy import create_engine, text
-from datetime import datetime
 import pandas as pd
 
 # Define database connection using SQLAlchemy
@@ -31,6 +30,15 @@ def fetch_jobs():
         df = df.dropna(subset=["date_posted"])
 
     return df
+
+
+def update_applied_status(job_id, new_status):
+    """Update the applied status for a job in the database."""
+    query = text("UPDATE jobs SET applied = :applied WHERE id = :job_id")
+    with engine.connect() as conn:
+        conn.execute(query, {"applied": 1 if new_status ==
+                     "Yes" else 0, "job_id": job_id})
+        conn.commit()
 
 
 # Function to get unique values for filters
@@ -148,6 +156,11 @@ with engine.connect() as conn:
 
 columns = result.keys()
 filtered_df = pd.DataFrame(filtered_jobs, columns=columns)
+
+if "applied" in filtered_df.columns:
+    filtered_df["applied"] = filtered_df["applied"].apply(
+        lambda x: "Yes" if x == 1 else "No")
+
 
 # **Pagination Settings**
 JOBS_PER_PAGE = 10  # Number of jobs per page
