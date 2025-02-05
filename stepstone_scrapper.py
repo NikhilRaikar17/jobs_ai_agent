@@ -12,7 +12,7 @@ STEPSTONE_URL = "https://www.stepstone.de"
 
 def scrape_stepstone_jobs(keyword, location="Germany", max_results=10):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         page = aql.wrap(browser.new_page())
 
         page.goto(f"{STEPSTONE_URL}")
