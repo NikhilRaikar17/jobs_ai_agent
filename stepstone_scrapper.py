@@ -20,6 +20,7 @@ def scrape_stepstone_jobs(keyword, location="Germany", max_results=10):
         page.click("div[id='ccmgt_explicit_accept']")
         page.click("button[aria-label='Login']")
         page.click("span[class='hf-provider-10nf7hq']")
+        # page.click("span[class='hf-provider-10nf7hq']")
         page.fill("input[name='email']", DUMMY_EMAIL)
         page.fill("input[name='password']", DUMMY_PASSWORD)
         page.click("button[type='submit']")
@@ -79,6 +80,3 @@ def create_jobs_list(jobs_data, extracted_jobs, max_results):
             "job_url": f"{job.get('job_url', '').strip()}",
         })
     return jobs_data
-
-
-scrape_stepstone_jobs("qa-engineer", "Germany", max_results=10)

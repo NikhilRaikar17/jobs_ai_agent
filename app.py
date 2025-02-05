@@ -113,11 +113,13 @@ locations = get_unique_values("location")
 selected_location = st.sidebar.selectbox(
     "Select Location", ["All"] + locations)
 
-if not df.empty:
-    min_date = df["date_posted"].min().date()
-    max_date = df["date_posted"].max().date()
-    selected_date = st.sidebar.slider(
-        "Filter by Date", min_date, max_date, (min_date, max_date))
+# if not df.empty:
+#     min_date = df["date_posted"].min().date(
+#     ) if not df.empty else datetime.today().date()
+#     max_date = df["date_posted"].max().date(
+#     ) if not df.empty else datetime.today().date()
+#     selected_date = st.sidebar.slider(
+#         "Filter by Date", min_date, max_date, (min_date, max_date))
 
 # **Apply filters using SQLAlchemy**
 filtered_query = "SELECT * FROM jobs WHERE 1=1"
@@ -135,9 +137,9 @@ if selected_location != "All":
     filtered_query += " AND location = :location"
     filters["location"] = selected_location
 
-filtered_query += " AND date_posted BETWEEN :start_date AND :end_date"
-filters["start_date"] = selected_date[0]
-filters["end_date"] = selected_date[1]
+# filtered_query += " AND date_posted BETWEEN :start_date AND :end_date"
+# filters["start_date"] = selected_date[0]
+# filters["end_date"] = selected_date[1]
 
 # Execute filtered query
 with engine.connect() as conn:

@@ -52,3 +52,8 @@ def update_job_scores_in_db(job_id, score, match_score):
     job.priority = score
     job.match_score = match_score
     session.commit()
+
+
+def get_jobs_without_priority() -> Set[str]:
+    """Retrieve all job IDs where priority is NULL."""
+    return session.query(Job).filter_by(priority='').all()
