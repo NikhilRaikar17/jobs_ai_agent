@@ -20,7 +20,7 @@ def query_llm(prompt):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}"
         }
-        url = "https://api.groq.com/openai/v1/chat/completionsasdasd"
+        url = "https://api.groq.com/openai/v1/chat/completion"
 
         data = {
             "messages": [{"role": "user", "content": prompt}],
