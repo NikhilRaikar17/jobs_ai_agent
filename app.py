@@ -17,7 +17,8 @@ USER_CREDENTIALS = {
 
 def fetch_jobs():
     """Fetch job listings from the database using SQLAlchemy."""
-    query = text("SELECT * FROM jobs ORDER BY date_posted DESC")
+    query = text(
+        "SELECT * FROM jobs WHERE applied = 0 ORDER BY date_posted DESC")
     with engine.connect() as conn:
         result = conn.execute(query)
         jobs = result.fetchall()
@@ -32,13 +33,14 @@ def fetch_jobs():
     return df
 
 
-def update_applied_status(job_id, new_status):
-    """Update the applied status for a job in the database."""
-    query = text("UPDATE jobs SET applied = :applied WHERE id = :job_id")
-    with engine.connect() as conn:
-        conn.execute(query, {"applied": 1 if new_status ==
-                     "Yes" else 0, "job_id": job_id})
-        conn.commit()
+def update_applied_status(updated_df):
+    """Update the applied status in the database based on changes in `st.data_editor`."""
+    for index, row in updated_df.iterrows():
+        query = text("UPDATE jobs SET applied = :applied WHERE id = :job_id")
+        with engine.connect() as conn:
+            conn.execute(
+                query, {"applied": 1 if row["applied"] == "Yes" else 0, "job_id": row["id"]})
+            conn.commit()
 
 
 # Function to get unique values for filters
@@ -109,17 +111,17 @@ if st.button("🔄 Refresh Job Listings"):
 df = fetch_jobs()
 
 # **Sidebar filters**
-st.sidebar.header("🔍 Filter Jobs")
+# st.sidebar.header("🔍 Filter Jobs")
 
-job_titles = get_unique_values("title")
-selected_title = st.sidebar.selectbox("Select Job Title", ["All"] + job_titles)
+# job_titles = get_unique_values("title")
+# selected_title = st.sidebar.selectbox("Select Job Title", ["All"] + job_titles)
 
-companies = get_unique_values("company")
-selected_company = st.sidebar.selectbox("Select Company", ["All"] + companies)
+# companies = get_unique_values("company")
+# selected_company = st.sidebar.selectbox("Select Company", ["All"] + companies)
 
-locations = get_unique_values("location")
-selected_location = st.sidebar.selectbox(
-    "Select Location", ["All"] + locations)
+# locations = get_unique_values("location")
+# selected_location = st.sidebar.selectbox(
+#     "Select Location", ["All"] + locations)
 
 # if not df.empty:
 #     min_date = df["date_posted"].min().date(
@@ -130,20 +132,20 @@ selected_location = st.sidebar.selectbox(
 #         "Filter by Date", min_date, max_date, (min_date, max_date))
 
 # **Apply filters using SQLAlchemy**
-filtered_query = "SELECT * FROM jobs WHERE 1=1"
+filtered_query = "SELECT * FROM jobs WHERE applied=0 ORDER BY date_posted DESC"
 filters = {}
 
-if selected_title != "All":
-    filtered_query += " AND title = :title"
-    filters["title"] = selected_title
+# if selected_title != "All":
+#     filtered_query += " AND title = :title"
+#     filters["title"] = selected_title
 
-if selected_company != "All":
-    filtered_query += " AND company = :company"
-    filters["company"] = selected_company
+# if selected_company != "All":
+#     filtered_query += " AND company = :company"
+#     filters["company"] = selected_company
 
-if selected_location != "All":
-    filtered_query += " AND location = :location"
-    filters["location"] = selected_location
+# if selected_location != "All":
+#     filtered_query += " AND location = :location"
+#     filters["location"] = selected_location
 
 # filtered_query += " AND date_posted BETWEEN :start_date AND :end_date"
 # filters["start_date"] = selected_date[0]
@@ -163,7 +165,7 @@ if "applied" in filtered_df.columns:
 
 
 # **Pagination Settings**
-JOBS_PER_PAGE = 10  # Number of jobs per page
+JOBS_PER_PAGE = 20  # Number of jobs per page
 
 if "current_page" not in st.session_state:
     st.session_state.current_page = 1
@@ -183,22 +185,41 @@ if not filtered_df.empty:
     # Apply pagination
     paginated_df = filtered_df.iloc[start_idx:end_idx].copy()
 
-    # Make job titles clickable
-    def make_clickable(job_url, title):
-        return f'<a href="{job_url}" target="_blank">{title}</a>'
-
-    paginated_df.loc[:, "title"] = paginated_df.apply(
-        lambda row: make_clickable(row["job_url"], row["title"]), axis=1)
-
     if "description" in paginated_df.columns:
         paginated_df = paginated_df.drop(columns=["description"])
 
     if "extracted_csv" in paginated_df.columns:
         paginated_df = paginated_df.drop(columns=["extracted_csv"])
 
-    # Hide index and format table
-    st.markdown(paginated_df.to_html(
-        escape=False, index=False), unsafe_allow_html=True)
+    # # Hide index and format table
+    # st.markdown(paginated_df.to_html(
+    #     escape=False, index=False), unsafe_allow_html=True)
+
+    edited_df = st.data_editor(
+        paginated_df,
+        column_config={
+            "job_url": st.column_config.LinkColumn(
+                display_text=r"APPLY_URL"
+            ),
+            "company": st.column_config.TextColumn("Company", disabled=True),
+            "location": st.column_config.TextColumn("Location", disabled=True),
+            "date_posted": st.column_config.DateColumn("Date Posted", disabled=True),
+            "applied": st.column_config.SelectboxColumn(
+                "Applied",
+                options=["Yes", "No"],  # Dropdown values
+                required=True,
+            ),
+        },
+        use_container_width=False,
+        height=750,
+        hide_index=True,
+    )
+
+    # **Update database only if changes are detected**
+    if not edited_df.equals(paginated_df):
+        update_applied_status(edited_df)
+        st.success("✅ Applied status updated successfully!")
+        st.rerun()  # Refresh the app to reflect changes
 
     # **Pagination Controls**
     col1, col2, col3 = st.columns([1, 2, 1])
