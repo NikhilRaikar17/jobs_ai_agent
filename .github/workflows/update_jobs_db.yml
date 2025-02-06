@@ -27,3 +27,11 @@ jobs:
         id: run_script
         run: |
           python main.py
+
+      - name: Commit and Push Updated Database
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add jobs.db
+          git commit -m "🔄 Updated jobs database with new job listings" || echo "No changes to commit"
+          git push
