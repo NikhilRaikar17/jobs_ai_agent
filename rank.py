@@ -20,7 +20,7 @@ def query_llm(prompt):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}"
         }
-        url = "https://api.groq.com/openai/v1/chat/completion"
+        url = "https://api.groq.com/openai/v1/chat/completions"
 
         data = {
             "messages": [{"role": "user", "content": prompt}],
@@ -94,10 +94,10 @@ def filter_jobs_with_ai(resume_text):
                 }}
                 """
                 response = query_llm(prompt)
-            
+                print(response)
+
                 result = extract_curly_braces_content(response)
-                print(job.title)
-                print(result)
+
                 decision = json.loads(result)
 
                 scores.append(decision["score"])
@@ -110,7 +110,7 @@ def filter_jobs_with_ai(resume_text):
                     filtered_jobs.append(job)
 
             print(f"✅ {len(filtered_jobs)} jobs passed AI filtering.")
-        print(f"✅ NO new jobs to filter")
+        print(f"✅ AI Filtering is finished, scores are updated")
 
         return jobs
     except Exception as e:

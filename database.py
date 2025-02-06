@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Boolean
+from sqlalchemy import create_engine, Column, String, Boolean, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -30,7 +30,7 @@ class Job(Base):
     date_posted: str = Column(String, nullable=True,
                               default=datetime.now().strftime("%Y-%m-%d"))
     description: str = Column(String, default="")
-    priority: str = Column(String, nullable=True)
+    priority: int = Column(Integer, default=0)
     match_score: str = Column(String, nullable=True)
     extracted_csv: bool = Column(Boolean, default=False)
     applied: bool = Column(Boolean, default=False)
@@ -56,4 +56,4 @@ def update_job_scores_in_db(job_id, score, match_score):
 
 def get_jobs_without_priority() -> Set[str]:
     """Retrieve all job IDs where priority is NULL."""
-    return session.query(Job).filter_by(priority='').all()
+    return session.query(Job).filter_by(priority=0).all()
