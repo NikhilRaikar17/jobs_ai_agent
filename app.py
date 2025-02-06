@@ -132,7 +132,7 @@ df = fetch_jobs()
 #         "Filter by Date", min_date, max_date, (min_date, max_date))
 
 # **Apply filters using SQLAlchemy**
-filtered_query = "SELECT * FROM jobs WHERE applied=0 ORDER BY date_posted DESC"
+filtered_query = "SELECT * FROM jobs ORDER BY date_posted DESC"
 filters = {}
 
 # if selected_title != "All":
