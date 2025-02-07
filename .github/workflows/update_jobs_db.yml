@@ -45,7 +45,10 @@ jobs:
 
       - name: Commit and Push Updated Database
         run: |
-          git pull
+          git stash
+          git pull --rebase origin main
+          git stash apply
+          git stash drop
           git add jobs.db
           git commit -m "🔄 Updated jobs database with new job listings by GITHUB" || echo "No changes to commit"
           git push https://x-access-token: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@github.com/NikhilRaikar17/jobs_ai_agent.git main
