@@ -12,7 +12,7 @@ def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
         if isinstance(job.get("date_posted"), (date, datetime)):
             job["date_posted"] = job["date_posted"].strftime("%Y-%m-%d")
 
-        existing_job = get_jobs_by_id(job.id)
+        existing_job = get_jobs_by_id(job.get("id"))
         if not existing_job:
             new_job = Job(**job)
 
