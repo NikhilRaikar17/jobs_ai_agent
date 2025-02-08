@@ -7,7 +7,6 @@ from database import session, Job, get_existing_job_ids, get_jobs_by_id
 
 def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
     """ Save job listings to the database, avoiding duplicates. """
-
     for job in jobs:
         if isinstance(job.get("date_posted"), (date, datetime)):
             job["date_posted"] = job["date_posted"].strftime("%Y-%m-%d")
@@ -23,7 +22,7 @@ def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
                 session.rollback()
         
         print(f"Job with is {job.get("id")} already exists in db")
-        return
+    return
 
 
 def scrape_jobs_data(query: str = "Software Tester", location: str = "germany") -> List[Dict[str, Any]]:
