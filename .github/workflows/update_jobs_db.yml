@@ -30,6 +30,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      
+      - name: Commit and Push Updated Database
+        run: |
+          git pull --rebase origin main
 
       - name: Run Python script
         id: run_script
@@ -45,10 +49,6 @@ jobs:
 
       - name: Commit and Push Updated Database
         run: |
-          git stash
-          git pull --rebase origin main
-          git stash apply
-          git stash drop
           git add jobs.db
           git commit -m "🔄 Updated jobs database with new job listings by GITHUB" || echo "No changes to commit"
           git push https://x-access-token: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@github.com/NikhilRaikar17/jobs_ai_agent.git main
