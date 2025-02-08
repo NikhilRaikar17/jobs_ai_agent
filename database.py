@@ -7,14 +7,13 @@ from typing import Set
 # Define database connection
 DB_FILE: str = "sqlite:///jobs.db"
 
+engine = create_engine(DB_FILE, echo=False)
+
 # Create a session factory
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Define the Base for ORM models
 Base = declarative_base()
-
-# Define the Job table
 
 
 class Job(Base):
