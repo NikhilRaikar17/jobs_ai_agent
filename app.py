@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 import pandas as pd
 
 # Define database connection using SQLAlchemy
-DB_FILE = "sqlite:///jobs.db"
+DB_FILE = "postgresql://urlbu4oi0tnewjy0j4sx:3yrsZLeY8y5CDYT5F0SNlTGnrLh1qC@bkzhuga2a53f1cxk7shq-postgresql.services.clever-cloud.com:50013/bkzhuga2a53f1cxk7shq"
 engine = create_engine(DB_FILE)
 
 # Fake user credentials (Replace with a database in production)
@@ -18,7 +18,7 @@ USER_CREDENTIALS = {
 def fetch_jobs():
     """Fetch job listings from the database using SQLAlchemy."""
     query = text(
-        "SELECT * FROM jobs WHERE applied = 0 ORDER BY date_posted DESC")
+        "SELECT * FROM jobs WHERE applied = FALSE ORDER BY date_posted DESC")
     with engine.connect() as conn:
         result = conn.execute(query)
         jobs = result.fetchall()
@@ -39,7 +39,7 @@ def update_applied_status(updated_df):
         query = text("UPDATE jobs SET applied = :applied WHERE id = :job_id")
         with engine.connect() as conn:
             conn.execute(
-                query, {"applied": 1 if row["applied"] == "Yes" else 0, "job_id": row["id"]})
+                query, {"applied": True if row["applied"] == "Yes" else False, "job_id": row["id"]})
             conn.commit()
 
 
