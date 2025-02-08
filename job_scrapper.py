@@ -2,7 +2,7 @@ from jobspy import scrape_jobs
 from datetime import date, datetime
 from typing import List, Dict, Any
 from sqlalchemy.exc import IntegrityError
-from database import session, Job, get_existing_job_ids
+from database import session, Job, get_existing_job_ids, get_jobs_by_id
 
 
 def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
@@ -12,13 +12,18 @@ def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
         if isinstance(job.get("date_posted"), (date, datetime)):
             job["date_posted"] = job["date_posted"].strftime("%Y-%m-%d")
 
-        new_job = Job(**job)
+        existing_job = get_jobs_by_id(job.id)
+        if not existing_job:
+            new_job = Job(**job)
 
-        try:
-            session.add(new_job)
-            session.commit()
-        except IntegrityError:
-            session.rollback()
+            try:
+                session.add(new_job)
+                session.commit()
+            except IntegrityError:
+                session.rollback()
+        
+        print(f"Job with is {job.id} already exists in db")
+        return
 
 
 def scrape_jobs_data(query: str = "Software Tester", location: str = "germany") -> List[Dict[str, Any]]:
