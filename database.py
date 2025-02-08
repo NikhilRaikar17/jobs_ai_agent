@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Set
 
 # Define database connection
-DB_FILE: str = "sqlite:///jobs.db"
+DB_FILE: str = "postgresql://urlbu4oi0tnewjy0j4sx:3yrsZLeY8y5CDYT5F0SNlTGnrLh1qC@bkzhuga2a53f1cxk7shq-postgresql.services.clever-cloud.com:50013/bkzhuga2a53f1cxk7shq"
 
 engine = create_engine(DB_FILE, echo=False)
 
@@ -52,10 +52,10 @@ def update_job_scores_in_db(job_id, score, match_score):
     session.commit()
 
 
-def get_jobs_without_priority() -> Set[str]:
+def get_jobs_without_priority():
     """Retrieve all job IDs where priority is NULL."""
     return session.query(Job).filter_by(priority=0).all()
 
-def get_jobs_by_id(job_id) -> Set[str]:
+def get_jobs_by_id(job_id):
     """Retrieve all job IDs where priority is NULL."""
     return session.query(Job).filter_by(id=job_id).first()
