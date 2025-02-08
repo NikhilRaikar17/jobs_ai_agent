@@ -34,10 +34,6 @@ jobs:
       - name: Commit changes from streamlit
         run: |
           git pull --rebase origin main
-          git add jobs.db
-          git commit -m "🔄 Fetched new changes from streamlite App" || echo "No changes to commit"
-          git push https://x-access-token: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@github.com/NikhilRaikar17/jobs_ai_agent.git main
-
 
       - name: Run Python script
         id: run_script
