@@ -5,8 +5,7 @@ from datetime import datetime
 from typing import Set
 
 # Define database connection
-DB_FILE: str = "postgresql://admin:2GZaSQEbzFpEkmmF5UT5wBdp185FShRW@dpg-cujhjoggph6c73bg8pq0-a.oregon-postgres.render.com/jobs_mjje"
-engine = create_engine(DB_FILE, echo=False)
+DB_FILE: str = "sqlite:///jobs.db"
 
 # Create a session factory
 Session = sessionmaker(bind=engine)
