@@ -22,7 +22,7 @@ def save_jobs_to_db(jobs: List[Dict[str, Any]]) -> None:
             except IntegrityError:
                 session.rollback()
         
-        print(f"Job with is {job.id} already exists in db")
+        print(f"Job with is {job.get("id")} already exists in db")
         return
 
 
