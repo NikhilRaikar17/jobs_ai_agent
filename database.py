@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from typing import Set
+import psycopg2
 
 # Define database connection
 DB_FILE: str = "postgresql://urlbu4oi0tnewjy0j4sx:3yrsZLeY8y5CDYT5F0SNlTGnrLh1qC@bkzhuga2a53f1cxk7shq-postgresql.services.clever-cloud.com:50013/bkzhuga2a53f1cxk7shq"
